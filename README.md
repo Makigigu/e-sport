@@ -37,7 +37,6 @@
 
 * **ส่วนติดต่อผู้ใช้งาน (Frontend):** Next.js (React), Tailwind CSS
 * **การจัดการฐานข้อมูล (Database):** Prisma ORM, TiDB Cloud (MySQL Serverless Cluster)
-* **ไอคอน:** Lucide React (ไม่มีสติ๊กเกอร์การ์ตูนหรืออีโมจิในโค้ด)
 
 ---
 
