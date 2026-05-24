@@ -1,0 +1,35 @@
+Create a highly professional, fully functional, multi-page frontend UI for a "Comprehensive E-Sports Tournament Management System" using a "Premium Light E-Sport Theme". 
+Color palette: Clean white background (e.g., bg-slate-50) with energetic neon accents (blue or purple) for interactive elements. STRICTLY DO NOT USE ANY EMOJIS, STICKERS, OR CARTOONISH ICONS. Use 'lucide-react' library for professional UI icons. Use clean typography, glassmorphism, and soft drop shadows.
+
+Language Requirement:
+All user-facing text MUST be in Thai, except for specific technical terms like 'OpenID', 'ROV', 'Blue Side', or 'Red Side'.
+
+Technical Constraints to prevent bugs:
+- Focus STRICTLY on generating the Frontend UI components and mock data.
+- Ensure the layout is fully Mobile-Responsive with horizontal scroll capability for large tables.
+- You MUST use React state (e.g., useState) to handle interactive components like Tabs and Modals.
+- System must be fully SCALABLE: Ensure Group Stage UI and Bracket UI can dynamically adjust to any number of teams (e.g., 18, 24, or 32 teams).
+
+Design the Frontend layout to showcase 4 distinct views:
+
+1. Game Selection Portal (Landing Page): A minimalist main page featuring a clean header and a grid of highly polished interactive game cards.
+2. Specific Game Hub (Tournament Overview): 
+    - Top: A responsive embedded video player section for Live Streams. 
+    - Middle: A "Check Team Status & E-Certificate" section with a search bar (input OpenID) and a "ดาวน์โหลดเกียรติบัตร" button.
+    - Bottom: Interactive Tabs for "Group Standings" and "Playoffs Bracket". 
+    - "Group Standings" must dynamically render as many group tables (A, B, C, D, E...) as needed based on registration data.
+    - "Playoffs Bracket" must dynamically render a Single Elimination tree for 4, 8, or 16 teams.
+    - MUST INCLUDE a "Live Match Tracker" component displaying a Game-by-Game timeline indicating 'Blue Side' (🟦) and 'Red Side' (🟥).
+3. Team Registration Form: A modern card-based form for registering 1 team. 
+    - Include a Dropdown for "ระดับชั้น (ประถม / มัธยม)".
+    - Include a "School Name" input, a "Full Team Name" input, a "Team Tag" input (STRICTLY Max 3 chars, auto-uppercase), and an OPTIONAL "Manager Name".
+    - For the 6 players, label inputs strictly as "OpenID". Include this help text: "วิธีหา OpenID: เข้าเกม RoV แล้วกดที่ รูปโปรไฟล์ (มุมซ้ายบน) > กดที่ฟันเฟือง > กดที่ OpenID > คัดลอก OpenID ของคุณ". 
+    - Add a mandatory Checkbox: "ข้าพเจ้ายืนยันว่าผู้เล่นมีผลการเรียน 2.00 ขึ้นไป ไม่ติด 0, ร, มส. และมีฮีโร่อย่างน้อย 18 ตัว"
+    - Add a mandatory "I agree to the rules" Checkbox.
+4. Admin Dashboard: A dedicated control panel with a sleek sidebar. 
+    - Data table for team approvals (Pending, Approved, Waitlisted, Rejected).
+    - MUST INCLUDE a "Dynamic Group Assignment" UI: Admins can create new groups and assign any number of teams to any group.
+    - An input field for "Live Stream URL".
+    - A highly detailed "Match Controller" with a "Game-by-Game" management UI (Modal for 'Blue/Red' side assignment).
+
+Use Next.js and Tailwind CSS best practices. The code must be clean, stable, and ready for Prisma Database integration.
