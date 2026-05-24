@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ระบบจัดการการแข่งขันอีสปอร์ตครบวงจร (Comprehensive E-Sports Tournament Management System)
 
-## Getting Started
+นี่คือโปรเจกต์เว็บแอปพลิเคชันสำหรับจัดการแข่งขันอีสปอร์ตที่พัฒนาด้วย Next.js และเชื่อมต่อฐานข้อมูลระดับ Enterprise ผ่าน Prisma ORM และ TiDB Cloud (MySQL Serverless) 
 
-First, run the development server:
+---
+
+## ฟีเจอร์หลักของระบบ
+
+### 1. หน้าเลือกเกม (Game Selection Portal)
+* หน้าแรกที่ออกแบบด้วยสไตล์ Premium Light E-Sport Theme เรียบหรู สะอาดตา
+* แสดงรายการเกมการแข่งขันในรูปแบบการ์ดแบบตอบสนอง (Responsive Card Grid)
+
+### 2. ศูนย์ควบคุมข้อมูลการแข่งขัน (Game Hub Overview)
+* ส่วนแสดงสตรีมสดผ่านเครื่องเล่นวิดีโอ (Embedded Live Stream Player)
+* ระบบตรวจสอบสถานะทีมสมัครและดาวน์โหลดเกียรติบัตร (E-Certificate Download) โดยค้นหาด้วย OpenID ของผู้เล่น
+* ตารางคะแนนรอบแบ่งกลุ่ม (Group Standings) ที่สร้างกลุ่มแข่งขันและทีมสมาชิกได้แบบไม่จำกัด
+* แผนผังทัวร์นาเมนต์รอบเพลย์ออฟ (Playoffs Bracket) แสดงแบบสายการแข่งขัน (Single Elimination) รองรับขนาด 4, 8 หรือ 16 ทีม พร้อมอัปเดตสายแข่งขันอัตโนมัติเมื่อสิ้นสุดแต่ละรอบ
+* ระบบรายงานสถานะเกมสด (Live Match Tracker) แสดงบันทึกเหตุการณ์ต่างๆ ในเกมพร้อมระบุฝั่ง Blue Side และ Red Side
+
+### 3. แบบฟอร์มลงทะเบียนทีมแข่ง (Team Registration Form)
+* ฟอร์มการสมัครที่ครอบคลุมสำหรับ 1 ทีม ประกอบด้วย:
+  * ข้อมูลทั่วไป เช่น ระดับชั้น (ประถม/มัธยม), ชื่อโรงเรียน, ชื่อทีม, ตัวย่อทีม (สูงสุด 3 ตัวอักษร พิมพ์ใหญ่ภาษาอังกฤษอัตโนมัติ), ชื่อผู้จัดการทีม
+  * ข้อมูลผู้เล่นทั้ง 6 คน (ตัวจริง 5 คน สำรอง 1 คน) โดยจัดเก็บทั้งชื่อ-นามสกุลจริงและ OpenID สำหรับพิมพ์บนใบเกียรติบัตร
+  * เงื่อนไขการสมัครและข้อตกลงในการเข้าร่วมแข่งขันครบถ้วน
+
+### 4. แดชบอร์ดแอดมิน (Admin Dashboard)
+* แผงควบคุมระบบสำหรับผู้ดูแลระบบพร้อมเมนูแถบข้าง (Sidebar) ประกอบด้วย:
+  * ระบบตรวจสอบและอนุมัติผู้สมัครทีมแข่ง (Pending, Approved, Waitlisted, Rejected)
+  * ระบบจัดกลุ่มแข่งขันแบบไดนามิก (Dynamic Group Assignment) สามารถสร้างกลุ่มแข่งขันใหม่และย้ายทีมเข้าร่วมกลุ่มได้อย่างอิสระ
+  * ส่วนแก้ไข URL ของสตรีมสดการแข่งขัน
+  * ส่วนจัดการคะแนนการแข่งขัน (Match Controller) สำหรับกรอกคะแนนและควบคุมการเข้ารอบของทีมต่างๆ ในสายเพลย์ออฟ
+  * ระบบจำลองเหตุการณ์ในการแข่งสด (Live Match Event Log) สำหรับลงบันทึกการกระทำในเกม
+
+---
+
+## เทคโนโลยีที่ใช้งาน (Technology Stack)
+
+* **ส่วนติดต่อผู้ใช้งาน (Frontend):** Next.js (React), Tailwind CSS
+* **การจัดการฐานข้อมูล (Database):** Prisma ORM, TiDB Cloud (MySQL Serverless Cluster)
+* **ไอคอน:** Lucide React (ไม่มีสติ๊กเกอร์การ์ตูนหรืออีโมจิในโค้ด)
+
+---
+
+## การเตรียมระบบฐานข้อมูล (Database Setup)
+
+1. คัดลอกและตั้งค่า URL การเชื่อมต่อฐานข้อมูล TiDB Cloud ในไฟล์ `.env` ที่อยู่ในโฟลเดอร์หลัก:
+   ```env
+   DATABASE_URL="mysql://username:password@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/dbname?sslaccept=strict"
+   ```
+
+2. อัปเดตโครงสร้างฐานข้อมูลและตารางเข้าสู่ TiDB Cloud ด้วยคำสั่ง:
+   ```bash
+   npx prisma db push
+   ```
+
+---
+
+## วิธีการรันโปรเจกต์ (Getting Started)
+
+### สำหรับขั้นตอนการพัฒนา (Development Server)
+
+รันคำสั่งด้านล่างนี้เพื่อเปิดใช้งานเซิร์ฟเวอร์สำหรับนักพัฒนา:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+จากนั้นเปิดเว็บเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000) เพื่อดูผลลัพธ์
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### สำหรับขั้นตอนการใช้งานจริง (Production Build)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+คอมไพล์โปรเจกต์และรันตัวเซิร์ฟเวอร์แบบ Production:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm start
+```
