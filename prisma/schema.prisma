@@ -1,0 +1,71 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  schoolName  String
+  teamName    String
+  teamTag     String
+  level       String   // 'ประถม' or 'มัธยม'
+  managerName String?
+  players     Json     // String array stored as JSON
+  status      String   @default("Pending") // 'Pending', 'Approved', 'Waitlisted', 'Rejected'
+  groupId     String?
+  group       Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  wins        Int      @default(0)
+  losses      Int      @default(0)
+  points      Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  teams     Team[]
+  createdAt DateTime @default(now())
+}
+
+model Match {
+  id         String   @id // e.g. "m8-qf-1", "m4-3"
+  team1Id    String?
+  team2Id    String?
+  team1Score Int      @default(0)
+  team2Score Int      @default(0)
+  winnerId   String?
+  status     String   @default("scheduled") // "scheduled", "live", "completed"
+  round      Int
+  createdAt  DateTime @default(now())
+}
+
+model TimelineEvent {
+  id          String   @id @default(uuid())
+  gameIndex   Int
+  time        String
+  type        String
+  description String   @db.Text
+  side        String   // "blue", "red", "neutral"
+  createdAt   DateTime @default(now())
+}
+
+model LiveMatch {
+  id                String @id @default("active-live-match")
+  team1Id           String
+  team2Id           String
+  team1Side         String // "Blue Side" or "Red Side"
+  team2Side         String // "Blue Side" or "Red Side"
+  t1Score           Int    @default(0)
+  t2Score           Int    @default(0)
+  currentGameIndex  Int    @default(1)
+  status            String @default("live") // "scheduled", "live", "completed"
+}
+
+model Settings {
+  key   String @id
+  value String @db.Text
+}
