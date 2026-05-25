@@ -61,7 +61,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-cyber-dark bg-[linear-gradient(rgba(6,8,12,0.85),rgba(6,8,12,0.92)),url('/esport_bg.png')] bg-cover bg-center bg-no-repeat bg-fixed cyber-grid">
+    <div className="flex flex-col min-h-screen bg-transparent cyber-grid">
       <Header />
 
       {/* Hero Section */}
@@ -121,7 +121,7 @@ export default function LandingPage() {
           {games.map((game) => (
             <div
               key={game.id}
-              className={`glass-panel group relative rounded-2xl border border-slate-900/80 p-6 bg-slate-950/40 backdrop-blur-md flex flex-col justify-between transition-all duration-300 ${game.active
+              className={`glass-panel group relative rounded-2xl border border-slate-900/80 p-6 bg-slate-950/85 backdrop-blur-md flex flex-col justify-between transition-all duration-300 ${game.active
                 ? "hover:shadow-2xl hover:shadow-cyan-500/10 hover:border-cyan-500/50 cursor-pointer"
                 : "opacity-60"
                 }`}
@@ -137,7 +137,7 @@ export default function LandingPage() {
                       {game.tag}
                     </span>
                   ) : (
-                    <span className="text-[10px] font-extrabold bg-slate-900 text-slate-400 px-2 py-1 rounded-md border border-slate-800">
+                    <span className="text-[10px] font-extrabold bg-slate-900 text-slate-300 px-2 py-1 rounded-md border border-slate-800">
                       {game.tag}
                     </span>
                   )}
@@ -150,36 +150,36 @@ export default function LandingPage() {
                 <span className="text-[10px] text-cyan-400/80 font-bold uppercase tracking-wider">{game.type}</span>
 
                 {/* Description */}
-                <p className="mt-3 text-sm text-slate-400 leading-relaxed min-h-[72px]">
+                <p className="mt-3 text-sm text-slate-300 leading-relaxed min-h-[72px]">
                   {game.description}
                 </p>
 
                 {/* Stats list */}
-                <div className="mt-6 space-y-2 border-t border-slate-900/80 pt-4 text-xs text-slate-400">
+                <div className="mt-6 space-y-2 border-t border-slate-900/80 pt-4 text-xs text-slate-300">
                   <div className="flex items-center space-x-2">
-                    <Users className="h-4 w-4 text-cyan-400/80" />
+                    <Users className="h-4 w-4 text-cyan-400" />
                     <span>ระดับการรับสมัคร: </span>
-                    <strong className="text-slate-200">{game.level}</strong>
+                    <strong className="text-white">{game.level}</strong>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Flame className="h-4 w-4 text-cyan-400/80" />
+                    <Flame className="h-4 w-4 text-cyan-400" />
                     <span>รางวัลรวม: </span>
-                    <strong className="text-slate-200">{game.prize}</strong>
+                    <strong className="text-white">{game.prize}</strong>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-cyan-400/80" />
+                    <Calendar className="h-4 w-4 text-cyan-400" />
                     <span>วันเริ่มแข่งขัน: </span>
-                    <strong className="text-slate-200">{game.startDate}</strong>
+                    <strong className="text-white">{game.startDate}</strong>
                   </div>
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="mt-8 pt-4 border-t border-slate-900/80">
+              <div className="mt-8 pt-4 border-t border-slate-900/50">
                 {game.active ? (
                   <Link
                     href={`/game/${game.id}`}
-                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 py-3 text-sm font-semibold group-hover:bg-gradient-to-r group-hover:from-cyan-500 group-hover:to-indigo-500 group-hover:text-white group-hover:border-transparent transition-all shadow-sm group-hover:shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 py-3 text-sm font-bold group-hover:bg-gradient-to-r group-hover:from-cyan-500 group-hover:to-indigo-500 group-hover:text-slate-950 group-hover:border-transparent transition-all duration-300 shadow-md shadow-cyan-500/5 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.25)]"
                   >
                     <span>เข้าสู่ข้อมูลทัวร์นาเมนต์</span>
                     <ChevronRight className="h-4 w-4" />
@@ -187,7 +187,7 @@ export default function LandingPage() {
                 ) : (
                   <button
                     disabled
-                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-slate-950 border border-slate-900 py-3 text-sm font-semibold text-slate-600 cursor-not-allowed"
+                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-slate-950/40 border border-slate-900/60 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed"
                   >
                     <span>ติดตามความคืบหน้า</span>
                   </button>
