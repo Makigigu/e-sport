@@ -47,39 +47,56 @@
 ## Screenshots
 
 ### 1. หน้าแรกการแข่งขัน ROV: Arena of Valor
-![ROV Tournament Page](https://github.com/Makigigu/e-sport/assets/1/screenshot-1-rov-tournament.png)
 
 หน้าแสดงรายละเอียดการแข่งขัน ROV: Arena of Valor พร้อมแท็บการเลือกเกม (Free Fire, PUBG Mobile, Valorant) และแสดงสตรีมสดพร้อมเลือกรอบการแข่งขัน
 
 ### 2. หน้าแรกหลัก (Main Landing Page)
-![Main Landing Page](https://github.com/Makigigu/e-sport/assets/2/screenshot-2-main-landing.png)
 
 หน้าแรกหลักของระบบแสดงชื่อระบบ "E-SPORTS TOURNAMENT MANAGEMENT SYSTEM" พร้อมปุ่มเข้าสู่ศูนย์กลาง E-Sports Live Hub และปุ่มลงทะเบียนสมัครแข่ง
 
 ### 3. หน้าลงทะเบียนทีมแข่ง (Team Registration Form)
-![Team Registration Form](https://github.com/Makigigu/e-sport/assets/3/screenshot-3-team-registration.png)
 
 แบบฟอร์มลงทะเบียนทีมแข่งพร้อมเลือกเกม ระดับชั้น ชื่อทีม และข้อมูลผู้เล่น โดยมีการตรวจสอบข้อมูลแบบ Real-time
 
 ### 4. หน้าแสดงรายการเกมการแข่งขัน (Game Tournament List)
-![Game Tournament List](https://github.com/Makigigu/e-sport/assets/4/screenshot-4-tournament-list.png)
 
 แสดงรายการเกมการแข่งขัน 3 เกม ได้แก่ ROV (Arena of Valor), Valorant และ League of Legends พร้อมรายละเอียด ราคารางวัล วันแข่งขัน และปุ่มเพิ่มเติม
 
-### 5. หน้าแดชบอร์ดแอดมิน - ส่วนตรวจสอบการสมัคร
-![Admin Dashboard - Registration](https://github.com/Makigigu/e-sport/assets/5/screenshot-5-admin-dashboard-registration.png)
+### 5. หน้าแดชบอร์ดแอดมิน - ส่วนจัดการสตรีมสดและควบคุมแมตช์
 
-แสดงแดชบอร์ดสำหรับผู้ดูแลระบบในการตรวจสอบและอนุมัติการสมัครของทีมแข่ง
+ส่วนจัดการ URL สตรีมสด YouTube และระบบควบคุมคะแนนการแข่งขันแบบ Real-time ระหว่างสองทีม พร้อมแสดงบันทึกเหตุการณ์ในเกม
 
-### 6. หน้าแดชบอร์ดแอดมิน - ส่วนจัดการคะแนน
-![Admin Dashboard - Match Management](https://github.com/Makigigu/e-sport/assets/6/screenshot-6-admin-dashboard-match.png)
+**ฟีเจอร์:**
+- ตั้งค่า Live Stream URL จาก YouTube
+- Live Match Controller แสดงคะแนนสดระหว่างสองทีม (Blue Side vs Red Side)
+- ระบบบันทึกเหตุการณ์เกมสด (Game Event Log)
+- ปุ่มเริ่มแข่งขันและควบคุมสถานะการแข่ง
 
-ส่วนจัดการคะแนนการแข่งขันและควบคุมรอบการแข่งขันของแต่ละทีม
+### 6. หน้าแดชบอร์ดแอดมิน - ส่วนตรวจสอบรายชื่อผู้เล่นทีมแข่ง
 
-### 7. หน้าแดชบอร์ดแอดมิน - ส่วนจัดการเกมสด
-![Admin Dashboard - Live Game Management](https://github.com/Makigigu/e-sport/assets/7/screenshot-7-admin-dashboard-live.png)
+แสดงรายการทีมแข่งที่ลงทะเบียนพร้อมข้อมูลผู้เล่นครบถ้วน
 
-ส่วนสำหรับจัดการเหตุการณ์ในการแข่งสด (Live Match Event Log) และตั้งค่าสตรีมการแข่งขัน
+**ข้อมูลที่แสดง:**
+- ชื่อและแท็บของทีม (Bacon E-Sports Junior, Buriram United Kids, Talon Esports Academy, Hydra Esport Rookies)
+- โรงเรียน/องค์กรที่จัดตั้ง
+- รายชื่อผู้เล่น 5 คนตัวจริง + 1 สำรอง พร้อมรหัสประจำตัวเกม
+- ปุ่มดู/แก้ไข/ลบข้อมูลทีม
+- ปุ่มดาวน์โหลดข้อมูลเป็น CSV
+
+### 7. หน้าแดชบอร์ดแอดมิน - ส่วนจัดกลุ่มแข่งขัน (Group Assignment & Bracket Manager)
+
+ระบบจัดกลุ่มแข่งขันแบบไดนามิก แสดง 4 กลุ่มพร้อมอัตราส่วนชัยบ่ายชาติ (Win-Draw-Points)
+
+**รายละเอียด:**
+- **Group A**: Bacon E-Sports Junior, Buriram United Kids, King of Gamers Club
+- **Group B**: Talon Esports Academy, Hydra Esport Rookies, Goldcity Esports
+- **Group C**: ศรีพรรษา, School Esports Stars
+- **Group D**: สำรรพรัก, Elementary Elite
+
+**ฟีเจอร์:**
+- แสดงชัยชนะ (Win), เสมอ (Draw) และคะแนน (Points) สำหรับแต่ละทีม
+- ปุ่มเพิ่มทีมลงในกลุ่ม
+- ปุ่มลบกลุ่มหรือแก้ไขอัตราส่วน
 
 ---
 
