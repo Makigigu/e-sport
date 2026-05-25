@@ -15,25 +15,25 @@ export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm no-print">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md no-print">
       {/* Modal Card */}
-      <div className="relative w-full max-w-4xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col md:max-h-[90vh]">
+      <div className="relative w-full max-w-4xl rounded-2xl glass-panel overflow-hidden flex flex-col md:max-h-[90vh]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-900 bg-slate-950/20">
           <div className="flex items-center space-x-2">
-            <Award className="h-5 w-5 text-indigo-600" />
-            <h3 className="font-semibold text-slate-800 text-base">ตรวจสอบเกียรติบัตรออนไลน์</h3>
+            <Award className="h-5 w-5 text-cyan-400" />
+            <h3 className="font-bold text-white text-base uppercase tracking-wide">ตรวจสอบเกียรติบัตรออนไลน์</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 hover:bg-slate-50 p-1.5 rounded-lg transition-colors"
+            className="text-slate-500 hover:text-white p-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Scrollable Container for Preview */}
-        <div className="p-6 md:p-8 overflow-y-auto flex-1 bg-slate-50/50 flex items-center justify-center">
+        <div className="p-6 md:p-8 overflow-y-auto flex-1 bg-slate-950/10 flex items-center justify-center">
           {/* Printable Certificate Area */}
           <div className="print-container w-full max-w-3xl aspect-[1.414/1] bg-white border-[12px] border-double border-indigo-900/10 p-8 md:p-12 relative flex flex-col justify-between shadow-lg overflow-hidden select-none">
             {/* Watermark Logo Backing */}
@@ -105,16 +105,16 @@ export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onCl
         </div>
 
         {/* Modal Footer (Actions) */}
-        <div className="flex items-center justify-end space-x-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+        <div className="flex items-center justify-end space-x-3 px-6 py-4 bg-slate-950/40 border-t border-slate-900">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+            className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             ปิดหน้าต่าง
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center space-x-2 px-5 py-2 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 transition-all"
+            className="flex items-center space-x-2 px-5 py-2.5 text-xs font-bold bg-cyan-500 hover:bg-cyan-600 text-slate-950 rounded-xl shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all cursor-pointer"
           >
             <Printer className="h-4 w-4" />
             <span>พิมพ์เกียรติบัตร (Print)</span>
