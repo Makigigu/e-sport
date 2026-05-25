@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { gameIndex, time, type, description, side } = body;
+    const { gameIndex, time, type, description, side, gameId } = body;
+    const activeGameId = gameId || "rov";
 
     if (gameIndex === undefined || !time || !type || !description || !side) {
       return NextResponse.json({ success: false, error: "ข้อมูลเหตุการณ์ไม่ครบถ้วน" }, { status: 400 });
@@ -16,7 +17,8 @@ export async function POST(request: Request) {
         time,
         type,
         description,
-        side
+        side,
+        gameId: activeGameId
       }
     });
 
@@ -27,9 +29,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   try {
-    await prisma.timelineEvent.deleteMany({});
+    const { searchParams } = new URL(request.url);
+    const gameId = searchParams.get("gameId") || "rov";
+    await prisma.timelineEvent.deleteMany({ where: { gameId } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("API delete timeline events error:", error);

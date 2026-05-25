@@ -4,14 +4,14 @@ import prisma from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name } = body;
+    const { name, gameId } = body;
 
     if (!name) {
       return NextResponse.json({ success: false, error: "กรุณาระบุชื่อกลุ่ม" }, { status: 400 });
     }
 
     const newGroup = await prisma.group.create({
-      data: { name }
+      data: { name, gameId: gameId || "rov" }
     });
 
     return NextResponse.json({ success: true, group: { id: newGroup.id, name: newGroup.name, teamIds: [] } });

@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { schoolName, teamName, teamTag, level, managerName, players } = body;
+    const { schoolName, teamName, teamTag, level, managerName, players, gameId } = body;
 
     if (!schoolName || !teamName || !teamTag || !level || !players || players.length !== 6) {
       return NextResponse.json({ success: false, error: "ข้อมูลไม่ครบถ้วนหรือรายชื่อผู้เล่นไม่เท่ากับ 6 คน" }, { status: 400 });
@@ -32,7 +32,8 @@ export async function POST(request: Request) {
         status: "Pending",
         wins: 0,
         losses: 0,
-        points: 0
+        points: 0,
+        gameId: gameId || "rov"
       }
     });
 

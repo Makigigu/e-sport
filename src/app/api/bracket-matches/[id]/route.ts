@@ -8,7 +8,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { team1Score, team2Score, status } = body;
+    const { team1Score, team2Score, status, scheduledTime } = body;
 
     const currentMatch = await prisma.match.findUnique({
       where: { id }
@@ -34,55 +34,33 @@ export async function PATCH(
         team1Score: t1Score,
         team2Score: t2Score,
         status,
+        scheduledTime,
         winnerId
       }
     });
 
     // Advance winner logic in database
-    const settingsSize = await prisma.settings.findUnique({ where: { key: "bracketSize" } });
-    const bracketSize = parseInt(settingsSize?.value || "8") || 8;
+    if (status === "completed" && winnerId) {
+      const parts = id.split("-");
+      if (parts.length === 3) {
+        const [prefix, roundStr, matchNumStr] = parts;
+        const rIdx = parseInt(roundStr.replace("r", ""));
+        const matchNum = parseInt(matchNumStr);
 
-    if (bracketSize === 4) {
-      if (id === "m4-1") {
-        await prisma.match.update({ where: { id: "m4-3" }, data: { team1Id: winnerId } });
-      } else if (id === "m4-2") {
-        await prisma.match.update({ where: { id: "m4-3" }, data: { team2Id: winnerId } });
-      }
-    } else if (bracketSize === 8) {
-      if (id === "m8-qf-1") {
-        await prisma.match.update({ where: { id: "m8-sf-1" }, data: { team1Id: winnerId } });
-      } else if (id === "m8-qf-2") {
-        await prisma.match.update({ where: { id: "m8-sf-1" }, data: { team2Id: winnerId } });
-      } else if (id === "m8-qf-3") {
-        await prisma.match.update({ where: { id: "m8-sf-2" }, data: { team1Id: winnerId } });
-      } else if (id === "m8-qf-4") {
-        await prisma.match.update({ where: { id: "m8-sf-2" }, data: { team2Id: winnerId } });
-      } else if (id === "m8-sf-1") {
-        await prisma.match.update({ where: { id: "m8-f" }, data: { team1Id: winnerId } });
-      } else if (id === "m8-sf-2") {
-        await prisma.match.update({ where: { id: "m8-f" }, data: { team2Id: winnerId } });
-      }
-    } else if (bracketSize === 16) {
-      if (id.startsWith("m16-r1-")) {
-        const matchNum = parseInt(id.replace("m16-r1-", ""));
-        const nextQfNum = Math.ceil(matchNum / 2);
+        const nextRound = rIdx + 1;
+        const nextMatchNum = Math.ceil(matchNum / 2);
+        const nextMatchId = `${prefix}-r${nextRound}-${nextMatchNum}`;
         const isTeam1 = matchNum % 2 !== 0;
-        await prisma.match.update({
-          where: { id: `m16-qf-${nextQfNum}` },
-          data: isTeam1 ? { team1Id: winnerId } : { team2Id: winnerId }
-        });
-      } else if (id.startsWith("m16-qf-")) {
-        const matchNum = parseInt(id.replace("m16-qf-", ""));
-        const nextSfNum = Math.ceil(matchNum / 2);
-        const isTeam1 = matchNum % 2 !== 0;
-        await prisma.match.update({
-          where: { id: `m16-sf-${nextSfNum}` },
-          data: isTeam1 ? { team1Id: winnerId } : { team2Id: winnerId }
-        });
-      } else if (id === "m16-sf-1") {
-        await prisma.match.update({ where: { id: "m16-f" }, data: { team1Id: winnerId } });
-      } else if (id === "m16-sf-2") {
-        await prisma.match.update({ where: { id: "m16-f" }, data: { team2Id: winnerId } });
+
+        // Check if next match exists
+        const nextMatch = await prisma.match.findUnique({ where: { id: nextMatchId } });
+        
+        if (nextMatch) {
+          await prisma.match.update({
+            where: { id: nextMatchId },
+            data: isTeam1 ? { team1Id: winnerId } : { team2Id: winnerId }
+          });
+        }
       }
     }
 

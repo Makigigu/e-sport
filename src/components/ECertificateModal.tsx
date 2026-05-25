@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Award, Printer, ShieldCheck } from "lucide-react";
+import { X, Award, Printer, ShieldCheck, Download } from "lucide-react";
 import { Team } from "@/context/AppContext";
 
 interface ECertificateModalProps {
@@ -10,8 +10,29 @@ interface ECertificateModalProps {
 }
 
 export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onClose }) => {
+  const certificateRef = React.useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = React.useState(false);
+
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownload = async () => {
+    if (!certificateRef.current) return;
+    setIsDownloading(true);
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(certificateRef.current, { scale: 2 });
+      const image = canvas.toDataURL("image/png", 1.0);
+      const link = document.createElement("a");
+      link.download = `Certificate_${team.teamTag}.png`;
+      link.href = image;
+      link.click();
+    } catch (err) {
+      console.error("Failed to generate image", err);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -21,7 +42,7 @@ export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onCl
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-900 bg-slate-950/20">
           <div className="flex items-center space-x-2">
-            <Award className="h-5 w-5 text-cyan-400" />
+            <Award className="h-5 w-5 text-rose-500" />
             <h3 className="font-bold text-white text-base uppercase tracking-wide">ตรวจสอบเกียรติบัตรออนไลน์</h3>
           </div>
           <button
@@ -35,17 +56,17 @@ export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onCl
         {/* Scrollable Container for Preview */}
         <div className="p-6 md:p-8 overflow-y-auto flex-1 bg-slate-950/10 flex items-center justify-center">
           {/* Printable Certificate Area */}
-          <div className="print-container w-full max-w-3xl aspect-[1.414/1] bg-white border-[12px] border-double border-indigo-900/10 p-8 md:p-12 relative flex flex-col justify-between shadow-lg overflow-hidden select-none">
+          <div ref={certificateRef} className="print-container w-full max-w-3xl aspect-[1.414/1] bg-white border-[12px] border-double border-indigo-900/10 p-8 md:p-12 relative flex flex-col justify-between shadow-lg overflow-hidden select-none">
             {/* Watermark Logo Backing */}
             <div className="absolute inset-0 flex items-center justify-center opacity-[0.02]">
               <Award className="w-[400px] h-[400px]" />
             </div>
 
             {/* Corner Decorative Ornaments */}
-            <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-indigo-600/30" />
-            <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-indigo-600/30" />
-            <div className="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-indigo-600/30" />
-            <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-indigo-600/30" />
+            <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-red-700/30" />
+            <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-red-700/30" />
+            <div className="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-red-700/30" />
+            <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-red-700/30" />
 
             {/* Header section */}
             <div className="text-center">
@@ -55,7 +76,7 @@ export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onCl
                 </div>
               </div>
               <h2 className="text-2xl font-bold tracking-tight text-slate-800">เกียรติบัตรการเข้าร่วมแข่งขัน</h2>
-              <p className="text-xs uppercase tracking-widest text-indigo-600 font-semibold mt-1">
+              <p className="text-xs uppercase tracking-widest text-red-700 font-semibold mt-1">
                 E-Sports Tournament Management System
               </p>
             </div>
@@ -79,7 +100,7 @@ export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onCl
                     const name = typeof player === "object" && player !== null ? player.name : player;
                     return (
                       <div key={index} className="flex items-center space-x-1 justify-center md:justify-start">
-                        <ShieldCheck className="h-3 w-3 text-cyan-600 flex-shrink-0" />
+                        <ShieldCheck className="h-3 w-3 text-rose-700 flex-shrink-0" />
                         <span className="truncate">{name}</span>
                       </div>
                     );
@@ -113,8 +134,16 @@ export const ECertificateModal: React.FC<ECertificateModalProps> = ({ team, onCl
             ปิดหน้าต่าง
           </button>
           <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="flex items-center space-x-2 px-5 py-2.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white rounded-xl shadow-lg border border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+          >
+            <Download className="h-4 w-4" />
+            <span>{isDownloading ? "กำลังดาวน์โหลด..." : "ดาวน์โหลดภาพ (Image)"}</span>
+          </button>
+          <button
             onClick={handlePrint}
-            className="flex items-center space-x-2 px-5 py-2.5 text-xs font-bold bg-cyan-500 hover:bg-cyan-600 text-slate-950 rounded-xl shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all cursor-pointer"
+            className="flex items-center space-x-2 px-5 py-2.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-slate-950 rounded-xl shadow-lg shadow-rose-600/10 hover:shadow-rose-600/20 transition-all cursor-pointer"
           >
             <Printer className="h-4 w-4" />
             <span>พิมพ์เกียรติบัตร (Print)</span>

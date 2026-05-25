@@ -21,14 +21,18 @@ model Team {
   wins        Int      @default(0)
   losses      Int      @default(0)
   points      Int      @default(0)
+  gameId      String   @default("rov")
   createdAt   DateTime @default(now())
 }
 
 model Group {
   id        String   @id @default(uuid())
-  name      String   @unique
+  name      String
+  gameId    String   @default("rov")
   teams     Team[]
   createdAt DateTime @default(now())
+
+  @@unique([name, gameId])
 }
 
 model Match {
@@ -39,7 +43,9 @@ model Match {
   team2Score Int      @default(0)
   winnerId   String?
   status     String   @default("scheduled") // "scheduled", "live", "completed"
+  scheduledTime String? // Optional date/time string
   round      Int
+  gameId     String   @default("rov")
   createdAt  DateTime @default(now())
 }
 
@@ -50,6 +56,7 @@ model TimelineEvent {
   type        String
   description String   @db.Text
   side        String   // "blue", "red", "neutral"
+  gameId      String   @default("rov")
   createdAt   DateTime @default(now())
 }
 
@@ -63,6 +70,8 @@ model LiveMatch {
   t2Score           Int    @default(0)
   currentGameIndex  Int    @default(1)
   status            String @default("live") // "scheduled", "live", "completed"
+  scheduledTime     String? // Optional date/time string
+  gameId            String @default("rov")
 }
 
 model Settings {

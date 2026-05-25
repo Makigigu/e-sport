@@ -5,13 +5,16 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import {
   Trophy,
-  Gamepad2,
   Users,
   Flame,
   Calendar,
   ChevronRight,
   ShieldCheck,
-  Play
+  Play,
+  Home,
+  MonitorPlay,
+  UserPlus,
+  Settings
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -25,7 +28,7 @@ export default function LandingPage() {
       teamsCount: "32 ทีมสูงสุด",
       level: "ประถมศึกษา / มัธยมศึกษา",
       status: "กำลังแข่งขัน",
-      statusColor: "text-cyan-400 bg-cyan-950/40 border-cyan-800/50 shadow-[0_0_10px_rgba(0,240,255,0.05)]",
+      statusColor: "text-[#ff003c] border-[#ff003c]/30 bg-[#ff003c]/10",
       description: "ศึกประชันความเป็นหนึ่งในการเล่นเกมวางแผนทีมระดับโรงเรียน การปะทะในแผนที่ Caldavar ชิงเกียรติยศและทุนการศึกษา",
       prize: "50,000 บาท",
       startDate: "15 มิถุนายน 2026",
@@ -39,7 +42,7 @@ export default function LandingPage() {
       teamsCount: "16 ทีมสูงสุด",
       level: "มัธยมศึกษา",
       status: "เตรียมเปิดรับสมัคร",
-      statusColor: "text-purple-400 bg-purple-950/40 border-purple-800/50",
+      statusColor: "text-[#cc0000] border-[#cc0000]/30 bg-[#cc0000]/10",
       description: "การแข่งขันเกมยิงแนววางยุทธวิธีแบบแบ่งฝ่ายโจมตีและป้องกัน ทักษะการยิงที่แม่นยำและการประสานงานทีมคือสิ่งสำคัญ",
       prize: "30,000 บาท",
       startDate: "1 สิงหาคม 2026",
@@ -53,7 +56,7 @@ export default function LandingPage() {
       teamsCount: "16 ทีมสูงสุด",
       level: "มัธยมศึกษา",
       status: "รอประกาศเป็นทางการ",
-      statusColor: "text-slate-500 bg-slate-950/40 border-slate-800/50",
+      statusColor: "text-slate-400 border-slate-600 bg-slate-800",
       description: "สงครามบนสมรภูมิ Summoner's Rift ค้นหาสุดยอดทีมโรงเรียนที่มีการวางแผนกลยุทธ์และการทำงานเป็นทีมที่เป็นเลิศ",
       prize: "40,000 บาท",
       startDate: "กันยายน 2026",
@@ -61,44 +64,76 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-transparent cyber-grid">
+    <div className="flex flex-col min-h-screen bg-transparent cyber-grid relative">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 md:py-24 bg-slate-950/30 border-b border-slate-900/50 backdrop-blur-[2px]">
-        {/* Soft Background Gradients */}
-        <div className="absolute top-0 right-0 -z-10 h-72 w-72 rounded-full bg-cyan-500/5 blur-3xl" />
-        <div className="absolute bottom-0 left-10 -z-10 h-80 w-80 rounded-full bg-purple-500/5 blur-3xl" />
+      {/* Left Floating Navigation Dock (Clean Esports Style) */}
+      <div className="fixed left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col space-y-4 z-40">
+        <Link href="/" className="group flex items-center space-x-3 text-left">
+          <div className="h-12 w-12 rounded-xl border border-[#ff003c]/20 bg-[#06080c]/80 backdrop-blur-md flex items-center justify-center transition-all group-hover:border-[#ff003c] group-hover:bg-[#ff003c]/10">
+            <Home className="w-5 h-5 text-slate-300 group-hover:text-[#ff003c]" />
+          </div>
+          <span className="text-xs font-bold text-white uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity bg-[#06080c]/90 border border-slate-800 px-4 py-2 rounded-lg backdrop-blur-md shadow-lg">
+            หน้าแรก
+          </span>
+        </Link>
+        <Link href="/game/rov" className="group flex items-center space-x-3 text-left">
+          <div className="h-12 w-12 rounded-xl border border-slate-800 bg-[#06080c]/80 backdrop-blur-md flex items-center justify-center transition-all group-hover:border-[#cc0000] group-hover:bg-[#cc0000]/10">
+            <MonitorPlay className="w-5 h-5 text-slate-400 group-hover:text-[#cc0000]" />
+          </div>
+          <span className="text-xs font-bold text-white uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity bg-[#06080c]/90 border border-slate-800 px-4 py-2 rounded-lg backdrop-blur-md shadow-lg">
+            Live Arena
+          </span>
+        </Link>
+        <Link href="/register" className="group flex items-center space-x-3 text-left">
+          <div className="h-12 w-12 rounded-xl border border-slate-800 bg-[#06080c]/80 backdrop-blur-md flex items-center justify-center transition-all group-hover:border-[#ff003c] group-hover:bg-[#ff003c]/10">
+            <UserPlus className="w-5 h-5 text-slate-400 group-hover:text-[#ff003c]" />
+          </div>
+          <span className="text-xs font-bold text-white uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity bg-[#06080c]/90 border border-slate-800 px-4 py-2 rounded-lg backdrop-blur-md shadow-lg">
+            สมัครแข่งขัน
+          </span>
+        </Link>
+        <Link href="/admin" className="group flex items-center space-x-3 text-left">
+          <div className="h-12 w-12 rounded-xl border border-slate-800 bg-[#06080c]/80 backdrop-blur-md flex items-center justify-center transition-all group-hover:border-[#cc0000] group-hover:bg-[#cc0000]/10">
+            <Settings className="w-5 h-5 text-slate-400 group-hover:text-[#cc0000]" />
+          </div>
+          <span className="text-xs font-bold text-white uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity bg-[#06080c]/90 border border-slate-800 px-4 py-2 rounded-lg backdrop-blur-md shadow-lg">
+            ผู้ดูแลระบบ
+          </span>
+        </Link>
+      </div>
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center space-x-2 rounded-full border border-cyan-500/20 bg-cyan-950/40 px-3 py-1.5 text-xs font-bold text-cyan-400 mb-6 shadow-[0_0_15px_rgba(0,240,255,0.05)]">
-            <Trophy className="h-3.5 w-3.5" />
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-16 md:pt-24 md:pb-20 border-b border-white/5 bg-[#06080c]/40 backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="inline-flex items-center space-x-2 rounded-md border border-[#ff003c]/30 bg-[#ff003c]/10 px-4 py-1.5 text-xs font-bold text-[#ff003c] mb-6">
+            <Trophy className="h-4 w-4" />
             <span>การแข่งขันอีสปอร์ตระดับนักเรียน ประจำปี 2026</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white max-w-3xl mx-auto leading-tight md:leading-none uppercase">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight md:leading-none uppercase">
             ระบบจัดการการแข่งขัน <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent filter drop-shadow-[0_0_20px_rgba(0,240,255,0.15)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff003c] to-[#cc0000]">
               E-Sports Tournament
             </span>
           </h1>
 
-          <p className="mt-6 text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-6 text-base md:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
             แพลตฟอร์มการจัดการการแข่งขัน ลงทะเบียนคัดกรองคุณสมบัติผู้เล่น ตรวจสอบสายการแข่งขัน
-            อัปเดตตารางคะแนนแบ่งกลุ่ม และติดตามสถานะไลฟ์แมตช์การแข่งขันแบบเรียลไทม์
+            อัปเดตตารางคะแนนแบ่งกลุ่ม และติดตามสถานะไลฟ์แมตช์แบบเรียลไทม์
           </p>
 
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link
               href="/game/rov"
-              className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 hover:scale-[1.02] transition-all duration-200"
+              className="flex items-center space-x-2 rounded-md bg-[#ff003c] hover:bg-[#ff3366] px-8 py-3.5 text-sm font-bold text-slate-900 transition-colors shadow-lg shadow-[#ff003c]/20"
             >
-              <Play className="h-4 w-4 fill-white text-white" />
-              <span>เข้าสู่ Specific Game Hub</span>
+              <Play className="h-4 w-4 fill-slate-900 text-slate-900" />
+              <span>เข้าสู่ E-Sports Live Hub</span>
             </Link>
             <Link
               href="/register"
-              className="flex items-center space-x-2 rounded-xl border border-slate-800 bg-slate-900/60 px-6 py-3.5 text-sm font-semibold text-slate-300 hover:bg-slate-800/80 hover:border-slate-700 hover:text-white transition-colors"
+              className="flex items-center space-x-2 rounded-md border border-slate-600 bg-slate-900/60 px-8 py-3.5 text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition-colors"
             >
               <Users className="h-4 w-4 text-slate-400" />
               <span>สมัครเข้าร่วมการแข่งขัน</span>
@@ -107,87 +142,114 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Clean Structured Stats Ribbon */}
+      <section className="border-b border-white/5 bg-[#0b0f1a]/80 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/5">
+            <div className="px-6 py-8 text-center">
+              <div className="text-3xl md:text-4xl font-black text-white">32+</div>
+              <div className="text-[11px] text-slate-400 mt-2 font-bold uppercase tracking-wider">ทีมสมัครแข่งขันสูงสุด</div>
+            </div>
+            <div className="px-6 py-8 text-center">
+              <div className="text-3xl md:text-4xl font-black text-white">50k฿</div>
+              <div className="text-[11px] text-slate-400 mt-2 font-bold uppercase tracking-wider">ทุนรางวัลการศึกษารวม</div>
+            </div>
+            <div className="px-6 py-8 text-center">
+              <div className="text-3xl md:text-4xl font-black text-white">16+</div>
+              <div className="text-[11px] text-slate-400 mt-2 font-bold uppercase tracking-wider">โรงเรียนเข้าร่วมแข่งขัน</div>
+            </div>
+            <div className="px-6 py-8 text-center">
+              <div className="text-3xl md:text-4xl font-black text-[#ff003c]">100%</div>
+              <div className="text-[11px] text-[#ff003c]/70 mt-2 font-bold uppercase tracking-wider">ตรวจสอบเกียรติบัตรออนไลน์</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Main Game Grid Section */}
-      <main className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-16">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
-          <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white">เลือกเกมที่แข่งขัน</h2>
-            <p className="mt-1 text-sm text-slate-400">คลิกที่เกมที่เปิดรับสมัครเพื่อตรวจสอบสถานะ สายการแข่งขัน และข้อมูลทีม</p>
+      <main className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-16 z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+          <div className="border-l-4 border-[#ff003c] pl-4">
+            <h2 className="text-2xl font-extrabold tracking-tight text-white uppercase">รายการเกมแข่งขัน</h2>
+            <p className="mt-1 text-sm text-slate-400 font-medium">คลิกที่เกมที่เปิดรับสมัครเพื่อตรวจสอบสถานะ สายการแข่งขัน และข้อมูลทีม</p>
           </div>
         </div>
 
         {/* Game Cards Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {games.map((game) => (
             <div
               key={game.id}
-              className={`glass-panel group relative rounded-2xl border border-slate-900/80 p-6 bg-slate-950/85 backdrop-blur-md flex flex-col justify-between transition-all duration-300 ${game.active
-                ? "hover:shadow-2xl hover:shadow-cyan-500/10 hover:border-cyan-500/50 cursor-pointer"
-                : "opacity-60"
-                }`}
+              className={`glass-panel group p-6 flex flex-col justify-between rounded-lg ${game.active ? 'cursor-pointer hover:border-[#ff003c]/50' : 'opacity-70'}`}
             >
               <div>
                 {/* Card Top / Badges */}
                 <div className="flex items-center justify-between mb-4">
-                  <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md border ${game.statusColor}`}>
+                  <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-sm border ${game.statusColor}`}>
                     {game.status}
                   </span>
                   {game.active ? (
-                    <span className="text-[10px] font-extrabold bg-cyan-950/40 text-cyan-400 px-2 py-1 rounded-md border border-cyan-900/60 shadow-[0_0_10px_rgba(0,240,255,0.05)]">
+                    <span className="text-[10px] font-extrabold bg-[#ff003c]/10 text-[#ff003c] px-2 py-1 rounded-sm border border-[#ff003c]/20">
                       {game.tag}
                     </span>
                   ) : (
-                    <span className="text-[10px] font-extrabold bg-slate-900 text-slate-300 px-2 py-1 rounded-md border border-slate-800">
+                    <span className="text-[10px] font-extrabold bg-slate-800 text-slate-300 px-2 py-1 rounded-sm border border-slate-700">
                       {game.tag}
                     </span>
                   )}
                 </div>
 
                 {/* Game Title */}
-                <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors">
+                <h3 className="text-xl font-bold text-white group-hover:text-[#ff003c] transition-colors">
                   {game.title}
                 </h3>
-                <span className="text-[10px] text-cyan-400/80 font-bold uppercase tracking-wider">{game.type}</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{game.type}</span>
 
                 {/* Description */}
-                <p className="mt-3 text-sm text-slate-300 leading-relaxed min-h-[72px]">
+                <p className="mt-4 text-sm text-slate-300 leading-relaxed min-h-[72px]">
                   {game.description}
                 </p>
 
                 {/* Stats list */}
-                <div className="mt-6 space-y-2 border-t border-slate-900/80 pt-4 text-xs text-slate-300">
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-4 w-4 text-cyan-400" />
-                    <span>ระดับการรับสมัคร: </span>
+                <div className="mt-6 space-y-3 bg-[#06080c]/50 p-4 rounded-md border border-white/5 text-xs text-slate-300">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center space-x-2">
+                      <Users className="h-4 w-4 text-[#ff003c]" />
+                      <span>ระดับ:</span>
+                    </span>
                     <strong className="text-white">{game.level}</strong>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Flame className="h-4 w-4 text-cyan-400" />
-                    <span>รางวัลรวม: </span>
-                    <strong className="text-white">{game.prize}</strong>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center space-x-2">
+                      <Flame className="h-4 w-4 text-[#ff003c]" />
+                      <span>รางวัล:</span>
+                    </span>
+                    <strong className="text-[#ff003c]">{game.prize}</strong>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-cyan-400" />
-                    <span>วันเริ่มแข่งขัน: </span>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center space-x-2">
+                      <Calendar className="h-4 w-4 text-[#ff003c]" />
+                      <span>เริ่มแข่ง:</span>
+                    </span>
                     <strong className="text-white">{game.startDate}</strong>
                   </div>
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="mt-8 pt-4 border-t border-slate-900/50">
+              <div className="mt-6">
                 {game.active ? (
                   <Link
                     href={`/game/${game.id}`}
-                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 py-3 text-sm font-bold group-hover:bg-gradient-to-r group-hover:from-cyan-500 group-hover:to-indigo-500 group-hover:text-slate-950 group-hover:border-transparent transition-all duration-300 shadow-md shadow-cyan-500/5 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.25)]"
+                    className="flex w-full items-center justify-center space-x-2 rounded-md bg-[#ff003c] hover:bg-[#ff3366] text-slate-900 py-3 text-sm font-bold transition-colors"
                   >
-                    <span>เข้าสู่ข้อมูลทัวร์นาเมนต์</span>
+                    <span>ดูรายละเอียด</span>
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 ) : (
                   <button
                     disabled
-                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-slate-950/40 border border-slate-900/60 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed"
+                    className="flex w-full items-center justify-center space-x-2 rounded-md bg-slate-800 border border-slate-700 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed"
                   >
                     <span>ติดตามความคืบหน้า</span>
                   </button>
@@ -199,10 +261,10 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-950/60 border-t border-slate-900 py-10 mt-20 backdrop-blur-md">
+      <footer className="bg-[#0b0f1a] border-t border-white/5 py-8 mt-12 z-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 space-y-4 md:space-y-0">
           <div className="flex items-center space-x-2">
-            <ShieldCheck className="h-4 w-4 text-cyan-400" />
+            <ShieldCheck className="h-4 w-4 text-[#ff003c]" />
             <span className="font-semibold text-slate-400">E-Sports Tournament Management Platform</span>
           </div>
           <div>

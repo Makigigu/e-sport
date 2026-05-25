@@ -4,99 +4,102 @@ import prisma from "@/lib/prisma";
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { liveStreamUrl, bracketSize } = body;
+    const { liveStreamUrl, bracketSize, gameId } = body;
+    const activeGameId = gameId || "rov";
 
     if (liveStreamUrl !== undefined) {
       await prisma.settings.upsert({
-        where: { key: "liveStreamUrl" },
+        where: { key: `${activeGameId}_liveStreamUrl` },
         update: { value: liveStreamUrl },
-        create: { key: "liveStreamUrl", value: liveStreamUrl }
+        create: { key: `${activeGameId}_liveStreamUrl`, value: liveStreamUrl }
       });
     }
 
     if (bracketSize !== undefined) {
       const sizeNum = parseInt(bracketSize) || 8;
       
-      // Update bracketSize setting
+      // Update bracketSize setting for the specific game
       await prisma.settings.upsert({
-        where: { key: "bracketSize" },
+        where: { key: `${activeGameId}_bracketSize` },
         update: { value: sizeNum.toString() },
-        create: { key: "bracketSize", value: sizeNum.toString() }
+        create: { key: `${activeGameId}_bracketSize`, value: sizeNum.toString() }
       });
 
       // Query approved teams to seed the new bracket first round
       const approvedTeams = await prisma.team.findMany({
-        where: { status: "Approved" },
+        where: { status: "Approved", gameId: activeGameId },
         orderBy: { createdAt: "asc" }
       });
 
-      // Re-generate matches in database
-      await prisma.match.deleteMany({}); // Delete existing matches
+      // Re-generate matches in database for this specific game
+      await prisma.match.deleteMany({ where: { gameId: activeGameId } });
 
       const matchesToCreate: any[] = [];
+      const totalTeams = approvedTeams.length;
+
+      // Handle Byes (dynamic bracket logic)
+      const generateMatches = (rounds: number, matchPrefix: string) => {
+        // Round 0 (Quarterfinals/Round of 16 etc.)
+        const expectedTeamsInFirstRound = Math.pow(2, rounds - 1);
+        
+        for (let i = 0; i < expectedTeamsInFirstRound / 2; i++) {
+          const t1 = approvedTeams[i] || null;
+          const t2 = approvedTeams[expectedTeamsInFirstRound - 1 - i] || null;
+          
+          let t1Score = 0;
+          let t2Score = 0;
+          let status = "scheduled";
+          let winnerId = null;
+
+          // If one team is null but the other isn't, the existing team gets a "Bye" (automatically wins round 0)
+          if (t1 && !t2) {
+            t1Score = 1;
+            status = "completed";
+            winnerId = t1.id;
+          } else if (!t1 && t2) {
+            t2Score = 1;
+            status = "completed";
+            winnerId = t2.id;
+          }
+
+          matchesToCreate.push({
+            id: `${matchPrefix}-r0-${i + 1}`,
+            team1Id: t1?.id || null,
+            team2Id: t2?.id || null,
+            team1Score: t1Score,
+            team2Score: t2Score,
+            winnerId,
+            status,
+            round: 0,
+            gameId: activeGameId
+          });
+        }
+
+        // Subsequent Rounds
+        let currentMatchesInRound = expectedTeamsInFirstRound / 4;
+        for (let r = 1; r < rounds; r++) {
+          for (let i = 0; i < currentMatchesInRound; i++) {
+            matchesToCreate.push({
+              id: `${matchPrefix}-r${r}-${i + 1}`,
+              team1Id: null,
+              team2Id: null,
+              team1Score: 0,
+              team2Score: 0,
+              status: "scheduled",
+              round: r,
+              gameId: activeGameId
+            });
+          }
+          currentMatchesInRound /= 2;
+        }
+      };
 
       if (sizeNum === 4) {
-        matchesToCreate.push({
-          id: "m4-1",
-          team1Id: approvedTeams[0]?.id || null,
-          team2Id: approvedTeams[3]?.id || null,
-          team1Score: 0,
-          team2Score: 0,
-          status: "scheduled",
-          round: 0
-        });
-        matchesToCreate.push({
-          id: "m4-2",
-          team1Id: approvedTeams[1]?.id || null,
-          team2Id: approvedTeams[2]?.id || null,
-          team1Score: 0,
-          team2Score: 0,
-          status: "scheduled",
-          round: 0
-        });
-        matchesToCreate.push({
-          id: "m4-3",
-          team1Id: null,
-          team2Id: null,
-          team1Score: 0,
-          team2Score: 0,
-          status: "scheduled",
-          round: 1
-        });
+        generateMatches(2, "m4");
       } else if (sizeNum === 8) {
-        for (let i = 0; i < 4; i++) {
-          matchesToCreate.push({
-            id: `m8-qf-${i + 1}`,
-            team1Id: approvedTeams[i]?.id || null,
-            team2Id: approvedTeams[7 - i]?.id || null,
-            team1Score: 0,
-            team2Score: 0,
-            status: "scheduled",
-            round: 0
-          });
-        }
-        matchesToCreate.push({ id: "m8-sf-1", team1Id: null, team2Id: null, team1Score: 0, team2Score: 0, status: "scheduled", round: 1 });
-        matchesToCreate.push({ id: "m8-sf-2", team1Id: null, team2Id: null, team1Score: 0, team2Score: 0, status: "scheduled", round: 1 });
-        matchesToCreate.push({ id: "m8-f",   team1Id: null, team2Id: null, team1Score: 0, team2Score: 0, status: "scheduled", round: 2 });
+        generateMatches(3, "m8");
       } else {
-        // 16 Teams
-        for (let i = 0; i < 8; i++) {
-          matchesToCreate.push({
-            id: `m16-r1-${i + 1}`,
-            team1Id: approvedTeams[i]?.id || null,
-            team2Id: approvedTeams[15 - i]?.id || null,
-            team1Score: 0,
-            team2Score: 0,
-            status: "scheduled",
-            round: 0
-          });
-        }
-        for (let i = 0; i < 4; i++) {
-          matchesToCreate.push({ id: `m16-qf-${i + 1}`, team1Id: null, team2Id: null, team1Score: 0, team2Score: 0, status: "scheduled", round: 1 });
-        }
-        matchesToCreate.push({ id: "m16-sf-1", team1Id: null, team2Id: null, team1Score: 0, team2Score: 0, status: "scheduled", round: 2 });
-        matchesToCreate.push({ id: "m16-sf-2", team1Id: null, team2Id: null, team1Score: 0, team2Score: 0, status: "scheduled", round: 2 });
-        matchesToCreate.push({ id: "m16-f",   team1Id: null, team2Id: null, team1Score: 0, team2Score: 0, status: "scheduled", round: 3 });
+        generateMatches(4, "m16");
       }
 
       await prisma.match.createMany({

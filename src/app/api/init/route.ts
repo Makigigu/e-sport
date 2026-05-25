@@ -1,27 +1,29 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const gameId = searchParams.get("gameId") || "rov";
     // 1. Check if database has groups, if not seed defaults
-    const groupCount = await prisma.group.count();
-    let groupAId = "group-a";
-    let groupBId = "group-b";
+    const groupCount = await prisma.group.count({ where: { gameId } });
+    let groupAId = `group-a-${gameId}`;
+    let groupBId = `group-b-${gameId}`;
 
     if (groupCount === 0) {
       const gA = await prisma.group.create({
-        data: { id: "group-a", name: "กลุ่ม A" }
+        data: { id: `group-a-${gameId}`, name: "กลุ่ม A", gameId }
       });
       const gB = await prisma.group.create({
-        data: { id: "group-b", name: "กลุ่ม B" }
+        data: { id: `group-b-${gameId}`, name: "กลุ่ม B", gameId }
       });
       groupAId = gA.id;
       groupBId = gB.id;
     }
 
     // 2. Check if database has teams, if not seed defaults
-    const teamCount = await prisma.team.count();
-    if (teamCount === 0) {
+    const teamCount = await prisma.team.count({ where: { gameId } });
+    if (teamCount === 0 && gameId === "rov") {
       await prisma.team.create({
         data: {
           id: "team-1",
@@ -202,14 +204,15 @@ export async function GET() {
           wins: 0,
           losses: 0,
           points: 0,
+          gameId
         }
       });
     }
 
     // Auto-migrate old plain-string players arrays to new { name, openid } structure
-    const existingTeamsForMigration = await prisma.team.findMany();
+    const existingTeamsForMigration = await prisma.team.findMany({ where: { gameId } });
     for (const t of existingTeamsForMigration) {
-      let playersArr = typeof t.players === "string" ? JSON.parse(t.players) : t.players;
+      const playersArr = typeof t.players === "string" ? JSON.parse(t.players) : t.players;
       if (Array.isArray(playersArr) && playersArr.length > 0 && typeof playersArr[0] === "string") {
         const migratedPlayers = playersArr.map((openid) => {
           let name = "ผู้เล่นกิตติมศักดิ์";
@@ -287,11 +290,11 @@ export async function GET() {
     }
 
     // 4. Seed LiveMatch and events if empty
-    const liveMatchCount = await prisma.liveMatch.count();
-    if (liveMatchCount === 0) {
+    const liveMatchCount = await prisma.liveMatch.count({ where: { gameId } });
+    if (liveMatchCount === 0 && gameId === "rov") {
       await prisma.liveMatch.create({
         data: {
-          id: "active-live-match",
+          id: "active-live-match-rov",
           team1Id: "team-1", // BAC
           team2Id: "team-2", // BRU
           team1Side: "Blue Side",
@@ -299,7 +302,8 @@ export async function GET() {
           t1Score: 1,
           t2Score: 0,
           currentGameIndex: 2,
-          status: "live"
+          status: "live",
+          gameId
         }
       });
 
@@ -349,7 +353,7 @@ export async function GET() {
     }
 
     // 5. Seed default matches for bracket size 8 if empty
-    const matchCount = await prisma.match.count();
+    const matchCount = await prisma.match.count({ where: { gameId } });
     if (matchCount === 0) {
       await prisma.match.createMany({
         data: [
@@ -365,12 +369,12 @@ export async function GET() {
     }
 
     // 6. Query all state
-    const dbTeams = await prisma.team.findMany({ orderBy: { createdAt: "asc" } });
-    const dbGroups = await prisma.group.findMany({ include: { teams: true }, orderBy: { name: "asc" } });
+    const dbTeams = await prisma.team.findMany({ where: { gameId }, orderBy: { createdAt: "asc" } });
+    const dbGroups = await prisma.group.findMany({ where: { gameId }, include: { teams: true }, orderBy: { name: "asc" } });
     const dbSettings = await prisma.settings.findMany();
-    const dbLiveMatch = await prisma.liveMatch.findUnique({ where: { id: "active-live-match" } });
-    const dbTimeline = await prisma.timelineEvent.findMany({ orderBy: { createdAt: "desc" } });
-    const dbMatches = await prisma.match.findMany({ orderBy: { round: "asc" } });
+    const dbLiveMatch = await prisma.liveMatch.findFirst({ where: { gameId } });
+    const dbTimeline = await prisma.timelineEvent.findMany({ where: { gameId }, orderBy: { createdAt: "desc" } });
+    const dbMatches = await prisma.match.findMany({ where: { gameId }, orderBy: { round: "asc" } });
 
     // Format fields correctly
     const formattedTeams = dbTeams.map((t) => ({

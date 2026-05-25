@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
+import useSWR from "swr";
 
 // Types definition
 export interface Team {
@@ -16,6 +17,7 @@ export interface Team {
   wins: number;
   losses: number;
   points: number;
+  gameId?: string;
 }
 
 export interface Match {
@@ -26,7 +28,9 @@ export interface Match {
   team2Score?: number;
   winnerId?: string | null;
   status: "scheduled" | "live" | "completed";
+  scheduledTime?: string;
   round: number; // 0, 1, 2 depending on bracket size
+  gameId?: string;
 }
 
 export interface TimelineEvent {
@@ -36,6 +40,7 @@ export interface TimelineEvent {
   type: string;
   description: string;
   side: "blue" | "red" | "neutral";
+  gameId?: string;
 }
 
 export interface LiveMatch {
@@ -46,16 +51,21 @@ export interface LiveMatch {
   gameScores: number[]; // e.g. [1, 1] means 1-1
   currentGameIndex: number;
   status: "scheduled" | "live" | "completed";
+  scheduledTime?: string;
   timeline: TimelineEvent[];
+  gameId?: string;
 }
 
 export interface Group {
   id: string;
   name: string; // Group A, Group B, etc.
   teamIds: string[];
+  gameId?: string;
 }
 
 interface AppContextType {
+  activeGameId: string;
+  setActiveGameId: (id: string) => void;
   teams: Team[];
   groups: Group[];
   bracketSize: number; // 4, 8, 16
@@ -69,9 +79,9 @@ interface AppContextType {
   deleteGroup: (groupId: string) => Promise<{ success: boolean; error?: string }>;
   assignTeamToGroup: (teamId: string, groupId: string | undefined) => Promise<{ success: boolean; error?: string }>;
   updateLiveStream: (url: string) => Promise<{ success: boolean; error?: string }>;
-  updateBracketMatch: (matchId: string, team1Score: number, team2Score: number, status: Match["status"]) => Promise<{ success: boolean; error?: string }>;
+  updateBracketMatch: (matchId: string, team1Score: number, team2Score: number, status: Match["status"], scheduledTime?: string) => Promise<{ success: boolean; error?: string }>;
   setBracketSize: (size: number) => Promise<{ success: boolean; error?: string }>;
-  updateLiveMatchMeta: (team1Id: string, team2Id: string, team1Side: "Blue Side" | "Red Side", team2Side: "Blue Side" | "Red Side", status: LiveMatch["status"]) => Promise<{ success: boolean; error?: string }>;
+  updateLiveMatchMeta: (team1Id: string, team2Id: string, team1Side: "Blue Side" | "Red Side", team2Side: "Blue Side" | "Red Side", status: LiveMatch["status"], scheduledTime?: string) => Promise<{ success: boolean; error?: string }>;
   addTimelineEvent: (gameIndex: number, time: string, type: string, description: string, side: TimelineEvent["side"]) => Promise<{ success: boolean; error?: string }>;
   clearTimeline: () => Promise<{ success: boolean; error?: string }>;
   updateLiveMatchScore: (team1Score: number, team2Score: number) => Promise<{ success: boolean; error?: string }>;
@@ -79,14 +89,22 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [bracketSize, setBracketSizeState] = useState<number>(8);
-  const [bracketMatches, setBracketMatches] = useState<Match[]>([]);
-  const [liveStreamUrl, setLiveStreamUrl] = useState<string>("https://www.youtube.com/embed/d3R28hY1Dlo");
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const [liveMatch, setLiveMatch] = useState<LiveMatch>({
+export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [activeGameId, setActiveGameId] = useState<string>("rov");
+
+  // Real-time syncing with SWR
+  const { data, mutate } = useSWR(`/api/init?gameId=${activeGameId}`, fetcher, {
+    refreshInterval: 5000, // Poll every 5 seconds
+  });
+
+  const teams = data?.teams || [];
+  const groups = data?.groups || [];
+  const bracketSize = data?.bracketSize || 8;
+  const bracketMatches = data?.bracketMatches || [];
+  const liveStreamUrl = data?.liveStreamUrl || "https://www.youtube.com/embed/d3R28hY1Dlo";
+  const liveMatch = data?.liveMatch || {
     team1Id: "",
     team2Id: "",
     team1Side: "Blue Side",
@@ -95,43 +113,21 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     currentGameIndex: 1,
     status: "scheduled",
     timeline: []
-  });
-
-  // Load initial data from database on mount (seeds DB if empty)
-  const refreshState = async () => {
-    try {
-      const res = await fetch("/api/init");
-      const data = await res.json();
-      if (data.success) {
-        setTeams(data.teams);
-        setGroups(data.groups);
-        setBracketSizeState(data.bracketSize);
-        setBracketMatches(data.bracketMatches);
-        setLiveMatch(data.liveMatch);
-        setLiveStreamUrl(data.liveStreamUrl);
-      }
-    } catch (err) {
-      console.error("Failed to load initial data from DB", err);
-    }
   };
-
-  useEffect(() => {
-    refreshState();
-  }, []);
 
   const registerTeam = async (teamData: Omit<Team, "id" | "status" | "wins" | "losses" | "points">) => {
     try {
       const res = await fetch("/api/teams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(teamData)
+        body: JSON.stringify({ ...teamData, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        setTeams(prev => [...prev, data.team]);
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to register team in DB", err);
       return { success: false, error: err.message };
@@ -145,12 +141,12 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
       });
-      const data = await res.json();
-      if (data.success) {
-        await refreshState();
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to update team status in DB", err);
       return { success: false, error: err.message };
@@ -164,12 +160,12 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ wins, losses, points })
       });
-      const data = await res.json();
-      if (data.success) {
-        await refreshState();
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to update team stats in DB", err);
       return { success: false, error: err.message };
@@ -181,14 +177,14 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const res = await fetch("/api/groups", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        setGroups(prev => [...prev, data.group]);
-        return { success: true, group: data.group };
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
+        return { success: true, group: resData.group };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to create group in DB", err);
       return { success: false, error: err.message };
@@ -200,12 +196,12 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const res = await fetch(`/api/groups?id=${groupId}`, {
         method: "DELETE"
       });
-      const data = await res.json();
-      if (data.success) {
-        await refreshState();
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to delete group in DB", err);
       return { success: false, error: err.message };
@@ -219,12 +215,12 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ groupId: groupId || null })
       });
-      const data = await res.json();
-      if (data.success) {
-        await refreshState();
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to assign team to group in DB", err);
       return { success: false, error: err.message };
@@ -236,14 +232,14 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const res = await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ liveStreamUrl: url })
+        body: JSON.stringify({ liveStreamUrl: url, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        setLiveStreamUrl(url);
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to update live stream URL in DB", err);
       return { success: false, error: err.message };
@@ -252,18 +248,17 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const setBracketSize = async (size: number) => {
     try {
-      setBracketSizeState(size);
       const res = await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bracketSize: size })
+        body: JSON.stringify({ bracketSize: size, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        await refreshState();
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to set bracket size in DB", err);
       return { success: false, error: err.message };
@@ -274,20 +269,21 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     matchId: string,
     team1Score: number,
     team2Score: number,
-    status: Match["status"]
+    status: Match["status"],
+    scheduledTime?: string
   ) => {
     try {
       const res = await fetch(`/api/bracket-matches/${matchId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team1Score, team2Score, status })
+        body: JSON.stringify({ team1Score, team2Score, status, scheduledTime, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        await refreshState();
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to update bracket match in DB", err);
       return { success: false, error: err.message };
@@ -299,27 +295,21 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     team2Id: string,
     team1Side: "Blue Side" | "Red Side",
     team2Side: "Blue Side" | "Red Side",
-    status: LiveMatch["status"]
+    status: LiveMatch["status"],
+    scheduledTime?: string
   ) => {
     try {
       const res = await fetch("/api/live-match", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team1Id, team2Id, team1Side, team2Side, status })
+        body: JSON.stringify({ team1Id, team2Id, team1Side, team2Side, status, scheduledTime, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        setLiveMatch(prev => ({
-          ...prev,
-          team1Id,
-          team2Id,
-          team1Side,
-          team2Side,
-          status
-        }));
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to update live match meta in DB", err);
       return { success: false, error: err.message };
@@ -332,18 +322,14 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const res = await fetch("/api/live-match", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ t1Score: team1Score, t2Score: team2Score, currentGameIndex: currentIdx })
+        body: JSON.stringify({ t1Score: team1Score, t2Score: team2Score, currentGameIndex: currentIdx, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        setLiveMatch(prev => ({
-          ...prev,
-          gameScores: [team1Score, team2Score],
-          currentGameIndex: currentIdx
-        }));
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to update live match score in DB", err);
       return { success: false, error: err.message };
@@ -361,27 +347,14 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const res = await fetch("/api/live-match/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameIndex, time, type, description, side })
+        body: JSON.stringify({ gameIndex, time, type, description, side, gameId: activeGameId })
       });
-      const data = await res.json();
-      if (data.success) {
-        setLiveMatch(prev => ({
-          ...prev,
-          timeline: [
-            {
-              id: data.event.id,
-              gameIndex,
-              time,
-              type,
-              description,
-              side
-            },
-            ...prev.timeline
-          ]
-        }));
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to log timeline event to DB", err);
       return { success: false, error: err.message };
@@ -390,18 +363,15 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const clearTimeline = async () => {
     try {
-      const res = await fetch("/api/live-match/events", {
+      const res = await fetch(`/api/live-match/events?gameId=${activeGameId}`, {
         method: "DELETE"
       });
-      const data = await res.json();
-      if (data.success) {
-        setLiveMatch(prev => ({
-          ...prev,
-          timeline: []
-        }));
+      const resData = await res.json();
+      if (resData.success) {
+        await mutate();
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: resData.error };
     } catch (err: any) {
       console.error("Failed to clear timeline in DB", err);
       return { success: false, error: err.message };
@@ -411,6 +381,8 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <AppContext.Provider
       value={{
+        activeGameId,
+        setActiveGameId,
         teams,
         groups,
         bracketSize,
