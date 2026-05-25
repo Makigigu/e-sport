@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="th"
       className={`${sarabun.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+      <body className="min-h-full flex flex-col bg-cyber-dark text-slate-200">
         <AppContextProvider>
           {children}
         </AppContextProvider>

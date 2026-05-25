@@ -61,14 +61,14 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-cyber-dark cyber-grid">
+    <div className="flex flex-col min-h-screen bg-cyber-dark bg-[linear-gradient(rgba(6,8,12,0.85),rgba(6,8,12,0.92)),url('/esport_bg.png')] bg-cover bg-center bg-no-repeat bg-fixed cyber-grid">
       <Header />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-slate-950 to-slate-900/40 border-b border-slate-900/60">
+      <section className="relative overflow-hidden py-16 md:py-24 bg-slate-950/30 border-b border-slate-900/50 backdrop-blur-[2px]">
         {/* Soft Background Gradients */}
-        <div className="absolute top-0 right-0 -z-10 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute bottom-0 left-10 -z-10 h-80 w-80 rounded-full bg-purple-500/10 blur-3xl" />
+        <div className="absolute top-0 right-0 -z-10 h-72 w-72 rounded-full bg-cyan-500/5 blur-3xl" />
+        <div className="absolute bottom-0 left-10 -z-10 h-80 w-80 rounded-full bg-purple-500/5 blur-3xl" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center space-x-2 rounded-full border border-cyan-500/20 bg-cyan-950/40 px-3 py-1.5 text-xs font-bold text-cyan-400 mb-6 shadow-[0_0_15px_rgba(0,240,255,0.05)]">
